@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 import { View } from 'react-native';
 import firebase from 'firebase';
 import { Header } from './components/common';
-import { fireBaseConfig } from './config';
+import fireBaseConfig from './constants/firebase';
 import LoginForm from './components/LoginForm';
 
 class App extends Component {
-  componentWillMount() {
+  componentDidMount() {
     firebase.initializeApp(fireBaseConfig);
   }
 
