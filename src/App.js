@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import firebase from 'firebase';
 import { Header } from './components/common';
 import { fireBaseConfig } from './config';
+import LoginForm from './components/LoginForm';
 
 class App extends Component {
   componentWillMount() {
@@ -13,6 +14,7 @@ class App extends Component {
     return (
       <View>
         <Header headerText="Auth" />
+        <LoginForm />
       </View>
     );
   }
