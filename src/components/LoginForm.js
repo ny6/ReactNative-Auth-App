@@ -1,46 +1,62 @@
 import React, { Component } from 'react';
-import firebase from 'firebase';
+import { auth } from 'firebase';
 import { Text } from 'react-native';
 import {
-  Button, Card, CardSection, Input,
+  Button, Card, CardSection, Input, Spinner,
 } from './common';
 
-const styles = {
-  errorTextStyle: {
-    fontSize: 20,
-    alignSelf: 'center',
-    color: 'red',
-  },
-};
-
-const { errorTextStyle } = styles;
-
 class LoginForm extends Component {
-  state = { email: '', password: '', error: '' }
+  state = {
+    email: '',
+    password: '',
+    error: '',
+    loading: false,
+  }
+
+  onLoginSuccess = () => {
+    this.setState({
+      loading: false, email: '', password: '', error: '',
+    });
+  }
+
+  registerUser = async () => {
+    try {
+      const { email, password } = this.state;
+      await auth().createUserWithEmailAndPassword(email, password);
+      this.onLoginSuccess();
+    } catch (err) {
+      this.setState({ loading: false, error: err.message });
+    }
+  }
 
   onButtonPress = async () => {
     try {
-      this.setState({ error: '' });
+      this.setState({ error: '', loading: true });
       const { email, password } = this.state;
       if (!email.trim() || !password.trim()) throw new Error('Both fields are mandatory!');
 
-      const res = await firebase.auth().signInWithEmailAndPassword(email, password);
+      await auth().signInWithEmailAndPassword(email, password);
+      return this.onLoginSuccess();
     } catch ({ code, message }) {
-      switch (code) {
-        case 'auth/invalid-email':
-          return this.setState({ error: 'Email is not valid!' });
-        case 'auth/user-not-found':
-          return this.setState({ error: 'Email does not exists!' });
-        case 'auth/wrong-password':
-          return this.setState({ error: 'Invalid password!' });
-        default:
-          return this.setState({ error: message });
+      if (code === 'auth/user-not-found') return this.registerUser();
+
+      let error = message;
+      if (code === 'auth/invalid-email') {
+        error = 'Email is not valid!';
+      } else if (code === 'auth/wrong-password') {
+        error = 'Invalid password!';
       }
+      return this.setState({ loading: false, error });
     }
   }
 
   render() {
-    const { email, password, error } = this.state;
+    const {
+      email, password, error, loading,
+    } = this.state;
+    const errorTextStyle = {
+      fontSize: 20, alignSelf: 'center', color: 'red',
+    };
 
     return (
       <Card>
@@ -63,7 +79,7 @@ class LoginForm extends Component {
         </CardSection>
         <Text style={errorTextStyle}>{error}</Text>
         <CardSection>
-          <Button onPress={this.onButtonPress} text="Login" />
+          {loading ? <Spinner /> : <Button onPress={this.onButtonPress} text="Login/Register" />}
         </CardSection>
       </Card>
     );
