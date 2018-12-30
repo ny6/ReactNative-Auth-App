@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import { View } from 'react-native';
 import { initializeApp, auth } from 'firebase';
-import { Header, Button, Spinner, CardSection } from './components/common';
+import {
+  Header, Button, Spinner, CardSection,
+} from './components/common';
 import fireBaseConfig from './constants/firebase';
 import LoginForm from './components/LoginForm';
 
