@@ -1,20 +1,39 @@
 import React, { Component } from 'react';
 import { View } from 'react-native';
-import firebase from 'firebase';
-import { Header } from './components/common';
+import { initializeApp, auth } from 'firebase';
+import { Header, Button, Spinner, CardSection } from './components/common';
 import fireBaseConfig from './constants/firebase';
 import LoginForm from './components/LoginForm';
 
 class App extends Component {
+  state = { loggedIn: null }
+
   componentDidMount() {
-    firebase.initializeApp(fireBaseConfig);
+    initializeApp(fireBaseConfig);
+    auth().onAuthStateChanged(user => this.setState({ loggedIn: !!user }));
+  }
+
+  renderContent = () => {
+    const { loggedIn } = this.state;
+    switch (loggedIn) {
+      case true:
+        return (
+          <CardSection>
+            <Button text="Logout" onPress={() => auth().signOut()} />
+          </CardSection>
+        );
+      case false:
+        return <LoginForm />;
+      default:
+        return <Spinner />;
+    }
   }
 
   render() {
     return (
       <View>
         <Header headerText="Auth" />
-        <LoginForm />
+        {this.renderContent()}
       </View>
     );
   }
